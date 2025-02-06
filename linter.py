@@ -46,14 +46,7 @@ class PhpCsFixer(Linter):
     multiline = True
     tempfile_suffix = 'php'
     error_stream = util.STREAM_STDOUT
-
-    def split_match(self, match):
-        """Extract and return values from match."""
-        match, line, col, error, warning, message, near = super().split_match(match)
-
-        line = line + 3
-
-        return match, line, col, error, warning, message, near
+    line_col_base = (-2, 1)
 
     def cmd(self):
         """Read cmd from inline settings."""
