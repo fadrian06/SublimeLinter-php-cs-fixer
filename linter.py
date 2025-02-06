@@ -7,7 +7,7 @@ from SublimeLinter.lint import Linter, util
 logger = logging.getLogger('SublimeLinter.plugin.php-cs-fixer')
 
 
-def _find_configuration_file(file_name):
+def find_configuration_file(file_name):
     if file_name is None:
         return None
 
@@ -68,7 +68,7 @@ class PhpCsFixer(Linter):
         if 'config_file' in self.settings:
             config_file = self.settings.get('config_file')
         else:
-            config_file = _find_configuration_file(self.view.file_name())
+            config_file = find_configuration_file(self.view.file_name())
             if not config_file:
                 config_file = self.config_file
 
