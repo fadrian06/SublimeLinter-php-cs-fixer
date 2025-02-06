@@ -63,7 +63,7 @@ class PhpCsFixer(Linter):
         command.append('--show-progress=none')
         command.append('--stop-on-violation')
 
-        if self.settings.get('version') and self.settings.get('version') == 2:
+        if self.settings.get('version') == 2:
             command.append('--diff-format=udiff')
         else:
             command.append('--diff')
