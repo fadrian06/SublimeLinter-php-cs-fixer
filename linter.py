@@ -39,9 +39,9 @@ class PhpCsFixer(Linter):
         'selector': 'embedding.php, source.php, text.html.basic'
     }
     regex = (
-        r'^\s+\d+\)\s+.+\s+\((?P<message>.+)\)[^\@]*'
+        r'^\s+\d+\)\s+.+\s+\((?P<error>.+)\)[^\@]*'
         r'\@\@\s+\-\d+,\d+\s+\+(?P<line>\d+),\d+\s+\@\@'
-        r'[^-+]+[-+]?\s+(?P<error>[^\n]*)'
+        r'[^-+]+[-+]?\s+(?P<message>[^\n]*)'
     )
     multiline = True
     tempfile_suffix = 'php'
@@ -52,7 +52,6 @@ class PhpCsFixer(Linter):
         match, line, col, error, warning, message, near = super().split_match(match)
 
         line = line + 3
-        message = "php-cs-fixer error(s) - " + message
 
         return match, line, col, error, warning, message, near
 
