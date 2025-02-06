@@ -1,15 +1,3 @@
-#
-# linter.py
-# Linter for SublimeLinter3, a code checking framework for Sublime Text 3
-#
-# Written by Jordan Hoff
-# Copyright (c) 2017 Jordan Hoff
-#
-# License: MIT
-#
-
-"""This module exports the PhpCsFixer plugin class."""
-
 import logging
 import os
 
