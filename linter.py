@@ -57,13 +57,6 @@ class PhpCsFixer(Linter):
         else:
             command = ['php-cs-fixer']
 
-        if 'config_file' in self.settings:
-            config_file = self.settings.get('config_file')
-        else:
-            config_file = find_configuration_file(self.view.file_name())
-            if not config_file:
-                config_file = self.config_file
-
         command.append('fix')
         command.append('${temp_file}')
         command.append('--dry-run')
@@ -78,6 +71,11 @@ class PhpCsFixer(Linter):
         command.append('--using-cache=no')
         command.append('--no-ansi')
         command.append('-vv')
-        command.append('--config=' + config_file)
+
+        config_file = self.settings.get('config_file')
+        if not config_file:
+            config_file = find_configuration_file(self.view.file_name())
+        if config_file:
+            command.append('--config=' + config_file)
 
         return command
