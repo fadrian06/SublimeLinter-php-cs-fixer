@@ -2,7 +2,7 @@ import logging
 import os
 from pathlib import Path
 
-from SublimeLinter.lint import Linter, util
+from SublimeLinter.lint import ComposerLinter, util
 
 
 def find_configuration_file(file_name):
@@ -19,7 +19,7 @@ def find_configuration_file(file_name):
     return None
 
 
-class PhpCsFixer(Linter):
+class PhpCsFixer(ComposerLinter):
     """Provides an interface to php-cs-fixer."""
 
     defaults = {
