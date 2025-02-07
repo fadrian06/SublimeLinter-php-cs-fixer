@@ -1,5 +1,3 @@
-import logging
-import os
 from pathlib import Path
 
 from SublimeLinter.lint import ComposerLinter, util
@@ -15,7 +13,7 @@ def find_configuration_file(file_name):
             configuration_file = parent / candidate
             if configuration_file.is_file():
                 return configuration_file
-    
+
     return None
 
 
@@ -36,21 +34,21 @@ class PhpCsFixer(ComposerLinter):
     line_col_base = (-2, 1)
 
     def cmd(self):
-       command = [
-           'php-cs-fixer',
-           'fix',
-           '${temp_file}',
-           '--dry-run',
-           '--show-progress=none',
-           '--stop-on-violation',
-           '--diff-format=udiff' if self.settings.get('version') == 2 else '--diff',
-           '--using-cache=no',
-           '--no-ansi',
-           '-vv'
-       ]
+        command = [
+            'php-cs-fixer',
+            'fix',
+            '${temp_file}',
+            '--dry-run',
+            '--show-progress=none',
+            '--stop-on-violation',
+            '--diff-format=udiff' if self.settings.get('version') == 2 else '--diff',
+            '--using-cache=no',
+            '--no-ansi',
+            '-vv'
+        ]
 
-       config_file = self.settings.get('config_file') or find_configuration_file(self.view.file_name())
-       if config_file:
-           command.append(f'--config={config_file}')
+        config_file = self.settings.get('config_file') or find_configuration_file(self.view.file_name())
+        if config_file:
+            command.append(f'--config={config_file}')
 
         return command
