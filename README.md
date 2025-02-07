@@ -20,6 +20,6 @@ Before using this plugin, you must ensure that `php-cs-fixer >= 2.7` is installe
 
 For `"phpcsfixer"` you can optionally specify:
 
-- "config_file": the path to the config file to use (globally or in your project using `${folder}/path/to//Users/koenlageveen/peppered-local/deklap/.php-cs-fixer.dist.php`). 
-- "version": by default PHP-CS-Fixer V3 is used. Set this value to `2` to use V2.
+- `"config_file"`: the path to the config file to use (e.g. using `${folder}/path/to/.php-cs-fixer.dist.php`). 
+- `"version"`: by default PHP-CS-Fixer V3 is used. Set this value to `2` to use V2.
 
