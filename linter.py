@@ -8,13 +8,7 @@ logger = logging.getLogger('SublimeLinter.plugin.php-cs-fixer')
 
 
 def find_configuration_file(file_name):
-    if file_name is None:
-        return None
-
-    if not isinstance(file_name, str):
-        return None
-
-    if not len(file_name) > 0:
+    if not file_name:
         return None
 
     checked = []
