@@ -43,27 +43,21 @@ class PhpCsFixer(Linter):
     line_col_base = (-2, 1)
 
     def cmd(self):
-        """Read cmd from inline settings."""
-        command = ['php-cs-fixer']
-        command.append('fix')
-        command.append('${temp_file}')
-        command.append('--dry-run')
-        command.append('--show-progress=none')
-        command.append('--stop-on-violation')
+       command = [
+           'php-cs-fixer',
+           'fix',
+           '${temp_file}',
+           '--dry-run',
+           '--show-progress=none',
+           '--stop-on-violation',
+           '--diff-format=udiff' if self.settings.get('version') == 2 else '--diff',
+           '--using-cache=no',
+           '--no-ansi',
+           '-vv'
+       ]
 
-        if self.settings.get('version') == 2:
-            command.append('--diff-format=udiff')
-        else:
-            command.append('--diff')
-
-        command.append('--using-cache=no')
-        command.append('--no-ansi')
-        command.append('-vv')
-
-        config_file = self.settings.get('config_file')
-        if not config_file:
-            config_file = find_configuration_file(self.view.file_name())
-        if config_file:
-            command.append('--config=' + config_file)
+       config_file = self.settings.get('config_file') or find_configuration_file(self.view.file_name())
+       if config_file:
+           command.append(f'--config={config_file}')
 
         return command
