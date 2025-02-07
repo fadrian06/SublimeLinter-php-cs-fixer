@@ -44,13 +44,7 @@ class PhpCsFixer(Linter):
 
     def cmd(self):
         """Read cmd from inline settings."""
-        if 'cmd' in self.settings:
-            logger.warning('The setting `cmd` has been deprecated. '
-                           'Use `executable` instead.')
-            command = [self.settings.get('cmd')]
-        else:
-            command = ['php-cs-fixer']
-
+        command = ['php-cs-fixer']
         command.append('fix')
         command.append('${temp_file}')
         command.append('--dry-run')
