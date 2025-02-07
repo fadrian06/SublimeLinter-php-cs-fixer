@@ -5,9 +5,6 @@ from pathlib import Path
 from SublimeLinter.lint import Linter, util
 
 
-logger = logging.getLogger('SublimeLinter.plugin.php-cs-fixer')
-
-
 def find_configuration_file(file_name):
     if not file_name:
         return None
