@@ -1,54 +1,96 @@
-from pathlib import Path
+from re import search
+from typing import Iterator
 
-from SublimeLinter.lint import ComposerLinter, util
+from sublime import Region
 
-
-def find_configuration_file(file_name):
-    if not file_name:
-        return None
-
-    candidates = ['.php-cs-fixer.php', '.php-cs-fixer.dist.php', '.php_cs', '.php_cs.dist']
-    for parent in Path(file_name).parents:
-        for candidate in candidates:
-            configuration_file = parent / candidate
-            if configuration_file.is_file():
-                return configuration_file
-
-    return None
+from SublimeLinter.lint import ComposerLinter
+from SublimeLinter.lint.linter import LintMatch
 
 
 class PhpCsFixer(ComposerLinter):
     """Provides an interface to php-cs-fixer."""
+    cmd = (
+        'php-cs-fixer',
+        'check',
+        '${file}',
+        '--diff',
+        '--no-ansi',
+        '--show-progress=none',
+        '--using-cache=no',
+        '--stop-on-violation',
+        '-v',
+        '${args}'
+    )
 
     defaults = {
-        'selector': 'embedding.php, source.php, text.html.basic'
+        'selector': 'embedding.php'
     }
-    regex = (
-        r'^\s+\d+\)\s+.+\s+\((?P<message>.+)\)[^\@]*'
-        r'\@\@\s+\-\d+,\d+\s+\+(?P<line>\d+),\d+\s+\@\@'
-        r'[^-+]+[-+]?\s+[^\n]*'
-    )
-    multiline = True
-    tempfile_suffix = 'php'
-    error_stream = util.STREAM_STDOUT
-    line_col_base = (-2, 1)
 
-    def cmd(self):
-        command = [
-            'php-cs-fixer',
-            'fix',
-            '${temp_file}',
-            '--dry-run',
-            '--show-progress=none',
-            '--stop-on-violation',
-            '--diff-format=udiff' if self.settings.get('version') == 2 else '--diff',
-            '--using-cache=no',
-            '--no-ansi',
-            '-vv'
-        ]
+    default_type = 'warning'
 
-        config_file = self.settings.get('config_file') or find_configuration_file(self.view.file_name())
-        if config_file:
-            command.append(f'--config={config_file}')
+    def find_errors(self, output: str) -> Iterator[LintMatch]:
+        file_content = self.view.substr(Region(0, self.view.size()))
+        file_lines = file_content.splitlines()
+        matches = []
+        output_lines = output.splitlines()
+        lines_to_remove = {}
+        lines_to_add = {}
+        file_line = 0
+        rule_name_pattern = r'\((.*?)\)'
+        rule_name = ''
+        rule_description = ''
 
-        return command
+        for output_line in output_lines:
+            output_first_character = output_line[0:1]
+            filtered_output_line = output_line[1:]
+
+            search_result = search(rule_name_pattern, filtered_output_line)
+
+            if search_result:
+                rule_name = search_result.group(1)
+
+                found, executable = self.context_sensitive_executable_path([
+                    'php-cs-fixer'
+                ])
+
+                if found:
+                    cmd = [executable, 'describe', rule_name, '--no-ansi']
+                    rule_description = self.run(cmd, '')
+
+            if '++' in filtered_output_line or '--' in filtered_output_line:
+                continue
+
+            if output_first_character not in ('+', '-'):
+                continue
+
+            if output_first_character == '-':
+                file_line = file_lines.index(filtered_output_line) + 1
+                lines_to_remove[file_line] = filtered_output_line
+                lines_to_add.setdefault(file_line, [])
+
+            if output_first_character == '+':
+                lines_to_add[file_line].append(filtered_output_line)
+
+        for line_number in lines_to_remove.keys():
+            if lines_to_remove[line_number] == '':
+                continue
+
+            line_content = lines_to_remove[line_number]
+            message = '\n'.join(lines_to_add[line_number])
+            col = 0
+
+            for char in line_content:
+                if char == ' ' or char == '\t':
+                    col += 1
+                else:
+                    break
+
+            matches.append(LintMatch({
+                'line': line_number - 1,
+                'message': f'{message}\n/*\n{rule_description}*/',
+                'col': col,
+                'end_col': len(line_content),
+                'code': rule_name
+            }))
+
+        return iter(matches)
